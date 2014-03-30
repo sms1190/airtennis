@@ -19,35 +19,9 @@ $(function(){
 	W=800;
 	H=600;
 	
-	var ballX;
-	var ballY;
-	var ballOffsetW;
-	var ballOffsetH;
-	var player1={};
-	var player2={};
-	var flag = 0;
-	var dx=0;
-	var dy=0;
-	var speed=3;
-	var startBtn = {};
-	var restartBtn = {};
-	var over = 0;
-	var dx=dy=speed;
-	var join_second_player=0;
 	
-	var img = new Image;
-	img.src = "ball.png";
-	var bg_img=new Image;
-	bg_img.src="bg.jpg";
-	var p1_img=new Image;
-	p1_img.src="r.png";
-	var p2_img=new Image;
-	p2_img.src="l.png";
-		
-	function init(){
-	
-	ballX=W-64-25-25;
-	ballY=120;
+	ballX=W/2-12;
+	ballY=H/2-12;
 	ballOffsetW=24;
 	ballOffsetH=24;
 	player1={};
@@ -62,6 +36,8 @@ $(function(){
 	over = 0;
 	dx=dy=speed;
 	join_second_player=0;
+	p1Score = 0;
+	p2Score = 0;
 	
 	var img = new Image;
 	img.src = "ball.png";
@@ -74,13 +50,13 @@ $(function(){
 		player1['h']=64;
 		player1['w']=64;
 		player1['x']=W-player1['w']-25;
-		player1['y']=100;
+		player1['y']=H/2;
 
 		player2['h']=64;
 		player2['w']=64;
 		player2['x']=25;
-		player2['y']=H-170;
-	}
+		player2['y']=H/2;
+
 	// Function to paint paintCanvas
 	function paintCanvas() {
 	ctx.drawImage(bg_img,3,3);
@@ -141,17 +117,31 @@ $(function(){
 
 		   if(ballX < 0)
 		   {
-		   	alert("you loose");
-		      
-		      init();
+			  p1Score = p1Score + 15;
+		   	  syncScore("p1Score", p1Score);
+		   	  changeScore("p1Score", p1Score);
+		      if(p1Score == 45) {
+		      	alert("Player 1 Wins!!");
+		      }
+		      //init();
+		      ballX=W/2-12;
+		      ballY=H/2-12;
 		   }
 
 		   // See if ball is past CPU paddle
 
 		   if((ballX + ballOffsetW) > W)
 		   {
-		      alert("Second player win");
-		      init();
+		   	  p2Score = p2Score + 15;
+		   	  syncScore("p2Score", p2Score);
+		   	  changeScore("p2Score", p2Score);
+		   	  	if(p2Score == 45) {
+				    alert("Player Wins!!");
+				}
+		      //alert("You win");
+		      //init();
+		      ballX=W/2-12;
+		      ballY=H/2-12;
 		   }
 
 		   // COLLISION DETECTION
@@ -255,7 +245,7 @@ $(function(){
 							}
 
 							if(currentPosition[0]-prevx>0){
-								if(paddle['x']+5<W/2){
+								if(paddle['x']+64<W/2){
 									paddle['x']=paddle['x']+10;
 								}
 							}
@@ -276,8 +266,9 @@ $(function(){
       }
 	});
 	controller.connect();
+	console.log(controller);
 	img.onload=function(){
-		init();
+		
 		draw();
 	};
 	/*if(youserver==1){
@@ -307,6 +298,19 @@ $(function(){
 		var data = $.extend(position, { gameid: ""+code, id: id });
 		socket.emit("moveball", data);
 	}
+
+	function syncScore(name, score) {
+		var data = $.extend({name: name, score: score }, { gameid: ""+code, id: id });
+		socket.emit("syncScore", data);
+	}
+
+	function changeScore(name,score) {
+		$("#"+name).html(score);
+	}
+
+	socket.on("syncScore", function(data) {
+		changeScore(data.name, data.score);
+	});
 
 	socket.on("moveplayer", function(data) {
 		

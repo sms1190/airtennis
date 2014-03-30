@@ -42,7 +42,7 @@ io.sockets.on("connection", function(socket) {
 			socketPlayers[socket.id] = socket;
 			callback(id, socket.id);
 		} else if(game[code] !== null) {
-			if(game[code].length == 2) {
+			if(game[code].length >= 2) {
 				callback(false);
 			} else {
 				game[code].push(socket.id);
@@ -67,7 +67,7 @@ io.sockets.on("connection", function(socket) {
 		}
 	});
 
-	/* move player */
+	/* move ball */
 	socket.on("moveball", function(info) {
 		if(game[info.gameid]!=null && game[info.gameid].length > 1) {
 			if(game[info.gameid][0] === info.id) {
@@ -76,6 +76,18 @@ io.sockets.on("connection", function(socket) {
 				id = game[info.gameid][0];
 			}
 			send("moveball", id, info);
+		}
+	});
+
+	/* sync score */
+	socket.on("syncScore", function(info) {
+		if(game[info.gameid]!=null && game[info.gameid].length > 1) {
+			if(game[info.gameid][0] === info.id) {
+				id = game[info.gameid][1];
+			} else {
+				id = game[info.gameid][0];
+			}
+			send("syncScore", id, info);
 		}
 	});
 
