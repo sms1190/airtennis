@@ -1,0 +1,11 @@
+{
+	"name": "tannis",
+	"version": "0.0.1",
+	"description": "Multiplayer Tennis game",
+	"dependencies": {
+		"leapjs": "0.4.3",
+		"express": "3.x",
+		"murmurhash": "0.0.2",
+		"socket.io": "0.9.x"
+	}
+}
