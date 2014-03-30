@@ -266,9 +266,7 @@ $(function(){
       }
 	});
 	controller.connect();
-	console.log(controller);
 	img.onload=function(){
-		
 		draw();
 	};
 	/*if(youserver==1){
@@ -312,13 +310,16 @@ $(function(){
 		changeScore(data.name, data.score);
 	});
 
-	socket.on("moveplayer", function(data) {
-		
-		if(youserver==1){
-			if(join_second_player==0){
+	socket.on("partner_joined", function() {
+		if(join_second_player==0){
 				start();
 				join_second_player=1;
 			}
+			draw();
+	});
+	socket.on("moveplayer", function(data) {
+		console.log(data);
+		if(youserver==1){
 			player2=data;
 		}
 		else{

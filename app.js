@@ -18,7 +18,7 @@ var server = http.createServer(app).listen(app.get('port'), function () {
 	console.log('Express server listening on port ' + app.get('port'));
 });
 
-io = sio.listen(server, { log: false });
+io = sio.listen(server, { log: false, "reconnect" : false, 'force new connection': true });
 
 function send(msg, to, data) {
 	// Check that the client has already joined successfully,
@@ -34,9 +34,10 @@ io.sockets.on("connection", function(socket) {
 	/* Handle requests to join the chat-room */
 	socket.on('gencode', function(info, callback) {
 		var code = info.code;
+		console.log(code);
 		if(code === null) {
 			var time = new Date();
-			var id = parseInt(murmurhash.v2(time.toString() + " - " + time.getMilliseconds()), 10);
+			var id = parseInt(murmurhash.v2(time.toString()), 4);
 			game[id] = [socket.id];
 			socket.game = id;
 			socketPlayers[socket.id] = socket;
@@ -48,15 +49,18 @@ io.sockets.on("connection", function(socket) {
 				game[code].push(socket.id);
 				socket.game = code;
 				socketPlayers[socket.id] = socket;
+				send("partner_joined", game[code][0], "");
 				callback(code, socket.id);
 			}
 		} else {
 			callback(false);
 		}
+		console.log(game);
 	});
 
 	/* move player */
 	socket.on("moveplayer", function(info) {
+		console.log(info);
 		if(game[info.gameid]!=null && game[info.gameid].length > 1) {
 			if(game[info.gameid][0] === info.id) {
 				id = game[info.gameid][1];
